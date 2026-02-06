@@ -1,101 +1,156 @@
-import Image from "next/image";
+import Link from "next/link";
+import { MarketingLayout } from "@/components/layout/marketing-layout";
+import { DnaHelix } from "@/components/landing/dna-helix";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dna, Brain, Users, Swords, Sparkles, Target, Zap, ArrowRight } from "lucide-react";
 
-export default function Home() {
+const features = [
+  {
+    icon: Dna,
+    title: "Learning DNA",
+    description: "AI maps your unique learning profile across 6 cognitive dimensions. Your DNA evolves as you learn.",
+    color: "text-primary",
+  },
+  {
+    icon: Swords,
+    title: "Quest-Based Learning",
+    description: "Replace boring courses with epic quests. Complete milestones, face boss battles, and earn XP.",
+    color: "text-accent",
+  },
+  {
+    icon: Brain,
+    title: "AI Mentor",
+    description: "A personal Claude-powered mentor that knows your DNA, your progress, and adapts in real-time.",
+    color: "text-dna-creative",
+  },
+  {
+    icon: Users,
+    title: "Peer Constellations",
+    description: "AI matches you with complementary learners. Collaborate in real-time constellation workspaces.",
+    color: "text-dna-social",
+  },
+  {
+    icon: Target,
+    title: "Skill Graph",
+    description: "Interactive force-directed graph visualizes every skill you've built. Watch your network grow.",
+    color: "text-dna-analytical",
+  },
+  {
+    icon: Sparkles,
+    title: "Adaptive Difficulty",
+    description: "Content adapts to your level. Struggling? Get more scaffolding. Flying? Face harder challenges.",
+    color: "text-dna-explorative",
+  },
+];
+
+const steps = [
+  { step: "01", title: "Discover Your DNA", description: "Take a quick AI-powered assessment. Claude analyzes your responses to map your learning profile." },
+  { step: "02", title: "Choose Your Quest", description: "Browse quests matched to your DNA. Each quest is a hands-on project with milestones and boss battles." },
+  { step: "03", title: "Learn & Level Up", description: "Complete milestones, chat with your AI mentor, earn XP, and watch your skill graph expand." },
+];
+
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <MarketingLayout>
+      {/* Hero */}
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+        <DnaHelix />
+        <div className="container mx-auto max-w-7xl px-4 relative z-10">
+          <div className="max-w-3xl space-y-6">
+            <Badge variant="secondary" className="text-sm">
+              <Zap className="h-3 w-3 mr-1" /> Now in Beta
+            </Badge>
+            <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight">
+              Your Learning{" "}
+              <span className="text-primary">DNA</span>{" "}
+              is Unique.{" "}
+              <span className="text-accent">Your Education</span>{" "}
+              Should Be Too.
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-xl">
+              LearnOS maps your cognitive profile, matches you with AI-powered quests, and connects you with peer constellations. This isn&apos;t a course platform — it&apos;s an operating system for learning.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/sign-up">
+                <Button size="lg" className="text-lg px-8">
+                  Map Your DNA <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link href="#features">
+                <Button variant="outline" size="lg" className="text-lg px-8">
+                  See How It Works
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="py-24 bg-card/50">
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className="text-center mb-16 space-y-4">
+            <Badge>Features</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold">
+              Everything You Need to Learn <span className="text-primary">Differently</span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              A complete adaptive learning ecosystem built around your unique cognitive profile.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((f) => (
+              <Card key={f.title} className="hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-brutal-lg transition-all duration-200">
+                <CardContent className="p-6 space-y-3">
+                  <f.icon className={`h-10 w-10 ${f.color}`} />
+                  <h3 className="text-xl font-bold">{f.title}</h3>
+                  <p className="text-muted-foreground">{f.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how-it-works" className="py-24">
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className="text-center mb-16 space-y-4">
+            <Badge variant="secondary">How It Works</Badge>
+            <h2 className="text-4xl md:text-5xl font-bold">
+              Three Steps to <span className="text-accent">Smarter Learning</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps.map((s) => (
+              <div key={s.step} className="space-y-4">
+                <div className="h-16 w-16 rounded-lg border-2 border-foreground bg-primary text-primary-foreground flex items-center justify-center text-2xl font-bold shadow-brutal">
+                  {s.step}
+                </div>
+                <h3 className="text-2xl font-bold">{s.title}</h3>
+                <p className="text-muted-foreground">{s.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 bg-primary text-primary-foreground">
+        <div className="container mx-auto max-w-7xl px-4 text-center space-y-6">
+          <h2 className="text-4xl md:text-5xl font-bold">Ready to Discover Your Learning DNA?</h2>
+          <p className="text-xl opacity-90 max-w-2xl mx-auto">
+            Join thousands of learners who have replaced traditional courses with adaptive, AI-powered quests.
+          </p>
+          <Link href="/sign-up">
+            <Button size="lg" variant="outline" className="text-lg px-8 bg-white text-primary border-white hover:bg-white/90">
+              Start Free <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+    </MarketingLayout>
   );
 }

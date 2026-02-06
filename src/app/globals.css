@@ -2,26 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 40 30% 97%;
+    --foreground: 240 10% 10%;
+    --card: 40 30% 95%;
+    --card-foreground: 240 10% 10%;
+    --popover: 40 30% 97%;
+    --popover-foreground: 240 10% 10%;
+    --primary: 262 80% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 20% 90%;
+    --secondary-foreground: 240 10% 20%;
+    --muted: 40 20% 92%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 172 66% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 10% 80%;
+    --input: 240 10% 80%;
+    --ring: 262 80% 55%;
+    --radius: 0.5rem;
+
+    --dna-analytical: 220 90% 56%;
+    --dna-creative: 280 80% 60%;
+    --dna-practical: 25 95% 55%;
+    --dna-social: 340 80% 55%;
+    --dna-structural: 172 66% 45%;
+    --dna-explorative: 45 95% 55%;
+  }
+
+  .dark {
+    --background: 240 10% 6%;
+    --foreground: 40 20% 95%;
+    --card: 240 10% 9%;
+    --card-foreground: 40 20% 95%;
+    --popover: 240 10% 9%;
+    --popover-foreground: 40 20% 95%;
+    --primary: 262 80% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 8% 16%;
+    --secondary-foreground: 40 20% 90%;
+    --muted: 240 8% 14%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 172 66% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 8% 20%;
+    --input: 240 8% 20%;
+    --ring: 262 80% 60%;
+
+    --dna-analytical: 220 90% 65%;
+    --dna-creative: 280 80% 70%;
+    --dna-practical: 25 95% 65%;
+    --dna-social: 340 80% 65%;
+    --dna-structural: 172 66% 55%;
+    --dna-explorative: 45 95% 60%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+.btn-brutal {
+  @apply border-2 border-foreground shadow-brutal transition-all duration-100;
+}
+.btn-brutal:hover {
+  @apply translate-x-[2px] translate-y-[2px] shadow-brutal-sm;
+}
+.btn-brutal:active {
+  @apply translate-x-[4px] translate-y-[4px] shadow-none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/40;
 }

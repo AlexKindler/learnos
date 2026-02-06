@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth (NextAuth v5) ───────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  username      String?   @unique
+  bio           String?
+  onboarded     Boolean   @default(false)
+  xp            Int       @default(0)
+  streak        Int       @default(0)
+  lastActiveAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts              Account[]
+  sessions              Session[]
+  learningDna           LearningDna?
+  assessmentResponses   AssessmentResponse[]
+  questProgress         QuestProgress[]
+  xpLogs                XpLog[]
+  mentorMemories        MentorMemory[]
+  constellationMembers  ConstellationMember[]
+  createdQuests         Quest[]              @relation("QuestCreator")
+  credentialNodes       CredentialNode[]
+  reviewsGiven          Review[]             @relation("ReviewAuthor")
+  reviewsReceived       Review[]             @relation("ReviewSubject")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Learning DNA ─────────────────────────────────────────────────
+
+model LearningDna {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Core dimensions (0-100)
+  analytical    Int @default(50)
+  creative      Int @default(50)
+  practical     Int @default(50)
+  social        Int @default(50)
+  structural    Int @default(50)
+  explorative   Int @default(50)
+
+  // Learning preferences
+  pacePreference    String @default("moderate") // slow, moderate, fast
+  depthPreference   String @default("balanced") // surface, balanced, deep
+  stylePreference   String @default("mixed")    // visual, reading, hands-on, mixed
+
+  // Skill snapshots (JSON array of { skill, level })
+  skills    Json @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AssessmentResponse {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  questionIndex Int
+  question      String   @db.Text
+  answer        String   @db.Text
+  dimension     String
+  score         Int
+  difficulty    String   // easy, medium, hard
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Quests ───────────────────────────────────────────────────────
+
+model Quest {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  coverImage  String?
+  category    String
+  difficulty  String   // beginner, intermediate, advanced
+  duration    String   // e.g. "2 weeks"
+  xpReward    Int      @default(100)
+  published   Boolean  @default(false)
+
+  creatorId   String
+  creator     User     @relation("QuestCreator", fields: [creatorId], references: [id])
+
+  milestones       Milestone[]
+  questProgress    QuestProgress[]
+  questVersions    QuestVersion[]
+  credentialNodes  CredentialNode[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model QuestVersion {
+  id       String @id @default(cuid())
+  questId  String
+  quest    Quest  @relation(fields: [questId], references: [id], onDelete: Cascade)
+  version  Int
+  snapshot Json
+  createdAt DateTime @default(now())
+}
+
+model Milestone {
+  id          String @id @default(cuid())
+  questId     String
+  quest       Quest  @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String   @db.Text
+  content     String   @db.Text  // Markdown content
+  order       Int
+  type        String   @default("lesson") // lesson, exercise, boss-battle
+  xpReward    Int      @default(25)
+
+  milestoneProgress MilestoneProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([questId, order])
+}
+
+model QuestProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId   String
+  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  status    String   @default("active") // active, completed, abandoned
+  startedAt DateTime @default(now())
+  completedAt DateTime?
+
+  milestoneProgress MilestoneProgress[]
+
+  @@unique([userId, questId])
+}
+
+model MilestoneProgress {
+  id              String   @id @default(cuid())
+  questProgressId String
+  questProgress   QuestProgress @relation(fields: [questProgressId], references: [id], onDelete: Cascade)
+  milestoneId     String
+  milestone       Milestone     @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+
+  status      String   @default("locked") // locked, active, completed
+  submission  String?  @db.Text
+  aiFeedback  String?  @db.Text
+  score       Int?
+  completedAt DateTime?
+
+  @@unique([questProgressId, milestoneId])
+}
+
+// ─── XP ───────────────────────────────────────────────────────────
+
+model XpLog {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amount    Int
+  source    String  // quest-complete, milestone-complete, boss-battle, streak-bonus
+  sourceId  String?
+  createdAt DateTime @default(now())
+}
+
+// ─── AI Mentor ────────────────────────────────────────────────────
+
+model MentorMemory {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role    String   // user, assistant
+  content String   @db.Text
+  context Json?    // { questId?, milestoneId?, topic? }
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Constellations ───────────────────────────────────────────────
+
+model Constellation {
+  id          String @id @default(cuid())
+  name        String
+  description String? @db.Text
+  maxMembers  Int     @default(5)
+
+  members  ConstellationMember[]
+  messages ConstellationMessage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ConstellationMember {
+  id              String @id @default(cuid())
+  constellationId String
+  constellation   Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role     String @default("member") // creator, member
+  joinedAt DateTime @default(now())
+
+  @@unique([constellationId, userId])
+}
+
+model ConstellationMessage {
+  id              String @id @default(cuid())
+  constellationId String
+  constellation   Constellation @relation(fields: [constellationId], references: [id], onDelete: Cascade)
+  userId          String
+  userName        String
+  userImage       String?
+
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Credentials & Reviews ────────────────────────────────────────
+
+model CredentialNode {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId String
+  quest   Quest  @relation(fields: [questId], references: [id])
+
+  earnedAt DateTime @default(now())
+  score    Int?
+
+  @@unique([userId, questId])
+}
+
+model Review {
+  id         String @id @default(cuid())
+  authorId   String
+  author     User   @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subjectId  String
+  subject    User   @relation("ReviewSubject", fields: [subjectId], references: [id])
+
+  rating  Int      // 1-5
+  comment String?  @db.Text
+
+  createdAt DateTime @default(now())
+}
