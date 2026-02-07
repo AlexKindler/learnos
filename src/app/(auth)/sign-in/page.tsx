@@ -4,24 +4,15 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Dna, Github, Mail, Loader2 } from "lucide-react";
+import { Dna, Github, Loader2 } from "lucide-react";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleOAuth = async (provider: string) => {
     setLoading(provider);
     await signIn(provider, { callbackUrl: "/dashboard" });
-  };
-
-  const handleEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading("email");
-    await signIn("resend", { email, callbackUrl: "/dashboard" });
   };
 
   return (
@@ -75,31 +66,6 @@ export default function SignInPage() {
               )}
               Continue with Google
             </Button>
-
-            <div className="relative">
-              <Separator />
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-                or
-              </span>
-            </div>
-
-            <form onSubmit={handleEmail} className="space-y-3">
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Button type="submit" className="w-full" disabled={loading !== null}>
-                {loading === "email" ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Mail className="h-4 w-4 mr-2" />
-                )}
-                Sign In with Email
-              </Button>
-            </form>
           </CardContent>
         </Card>
 

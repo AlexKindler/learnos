@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Search, Compass, Clock, Users, Trophy, Filter } from "lucide-react";
 
-const categories = ["All", "Programming", "Design", "Data Science", "Writing", "Business", "Math"];
+const categories = ["All", "Programming", "Business", "Finance", "Design", "Data Science", "Math", "Science", "Leadership", "DevOps", "Writing"];
 const difficulties = ["All", "beginner", "intermediate", "advanced"];
 
 export default function ExplorePage() {

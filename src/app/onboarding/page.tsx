@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { DnaRadarChart } from "@/components/dashboard/dna-radar-chart";
 import { useTRPC } from "@/lib/trpc";
 import { useMutation } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import { Dna, ArrowRight, ArrowLeft, Sparkles, Brain, Palette, Wrench, Users, Building2, Compass, Loader2 } from "lucide-react";
 
 const interests = [
@@ -102,6 +103,7 @@ type Step = "welcome" | "interests" | "quiz" | "reveal";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const trpc = useTRPC();
   const [step, setStep] = useState<Step>("welcome");
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -164,6 +166,8 @@ export default function OnboardingPage() {
 
     try {
       await saveDna.mutateAsync(dna);
+      // Refresh the JWT token so onboarded=true is reflected in middleware
+      await updateSession();
     } catch (err) {
       console.error("Failed to save DNA:", err);
     }

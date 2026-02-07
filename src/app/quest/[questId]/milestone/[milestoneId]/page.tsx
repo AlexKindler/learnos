@@ -25,6 +25,7 @@ export default function MilestonePage() {
 
   const [submission, setSubmission] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [evaluating, setEvaluating] = useState(false);
 
   const { data: milestone, isLoading } = useQuery(trpc.milestone.get.queryOptions({ milestoneId }));
   const { data: progress } = useQuery(trpc.quest.myProgress.queryOptions({ questId }));
@@ -33,7 +34,6 @@ export default function MilestonePage() {
     ...trpc.milestone.complete.mutationOptions(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: trpc.quest.myProgress.queryOptions({ questId }).queryKey });
-      setFeedback("Great work! Milestone completed successfully.");
     },
   });
 
@@ -58,14 +58,45 @@ export default function MilestonePage() {
     );
   }
 
-  const handleComplete = () => {
-    if (!progress) return;
-    completeMilestone.mutate({
-      milestoneId,
-      questProgressId: progress.id,
-      submission: submission || undefined,
-      score: 85,
-    });
+  const handleComplete = async () => {
+    if (!progress || !milestone) return;
+    setEvaluating(true);
+
+    try {
+      // AI evaluation
+      const res = await fetch("/api/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          submission,
+          milestoneTitle: milestone.title,
+          milestoneContent: milestone.content,
+          milestoneType: milestone.type,
+          questTitle: milestone.quest.title,
+        }),
+      });
+      const evaluation = await res.json();
+
+      await completeMilestone.mutateAsync({
+        milestoneId,
+        questProgressId: progress.id,
+        submission: submission || undefined,
+        aiFeedback: evaluation.feedback,
+        score: evaluation.score,
+      });
+      setFeedback(evaluation.feedback || "Great work! Milestone completed.");
+    } catch {
+      // Fallback if evaluation fails
+      await completeMilestone.mutateAsync({
+        milestoneId,
+        questProgressId: progress.id,
+        submission: submission || undefined,
+        score: 75,
+      });
+      setFeedback("Milestone completed!");
+    } finally {
+      setEvaluating(false);
+    }
   };
 
   const mp = progress?.milestoneProgress.find((m) => m.milestoneId === milestoneId);
@@ -121,10 +152,12 @@ export default function MilestonePage() {
               <Button
                 size="lg"
                 onClick={handleComplete}
-                disabled={completeMilestone.isPending}
+                disabled={evaluating || completeMilestone.isPending}
               >
-                {completeMilestone.isPending ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Evaluating...</>
+                {evaluating ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> AI is evaluating...</>
+                ) : completeMilestone.isPending ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...</>
                 ) : (
                   <><CheckCircle2 className="h-4 w-4 mr-2" /> Complete Milestone</>
                 )}
